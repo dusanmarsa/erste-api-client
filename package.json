@@ -1,11 +1,11 @@
 {
-  "name": "erste-client-node",
+  "name": "erste-api-client",
   "version": "1.0.0",
   "description": "Client for ERSTE API in Node.js",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
   "module": "build/module/index.js",
-  "repository": "https://github.com/YOUR_GITHUB_USER_NAME/erste-client-node",
+  "repository": "https://github.com/dusanmarsa/erste-api-client",
   "license": "MIT",
   "keywords": [],
   "scripts": {

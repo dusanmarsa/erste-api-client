@@ -1,3 +1,2 @@
-
 // Transparent account client
-export * from './lib/transparentAccount';
+export * from './lib/csasTransparentAccountV3';

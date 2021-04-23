@@ -15,7 +15,7 @@ export type ErsteTransaction = {
         readonly iban: string;
         readonly specificSymbol: string;
         readonly specificSymbolParty: string;
-        readonly variableSymbol: string;
+        readonly variableSymbol: VariableSymbol;
         readonly constantSymbol: string;
         readonly name: string;
         readonly description: string;
@@ -28,7 +28,7 @@ export type ErsteTransaction = {
     readonly typeDescription: string;
 };
 
-export type ErsteResponse = {
+export type ListOfTransactions = {
     readonly pageNumber: number;
     readonly pageSize: number;
     readonly pageCount: number;
@@ -36,18 +36,62 @@ export type ErsteResponse = {
     readonly transactions: readonly ErsteTransaction[];
 };
 
-export type TransparentAccountSum = number;
+export type AccountDetail = {
+    accountNumber: string
+    bankCode: string
+    transparencyFrom: string
+    transparencyTo: string
+    publicationTo: string
+    actualizationDate: string
+    balance: number
+    currency: string
+    name: string
+    description: string
+    note: string
+    iban: string
+}
+
+export type AccountsList = {
+    pageNumber: number
+    pageCount: number
+    pageSize: number
+    recordCount: number
+    nextPage: number
+    accounts: AccountDetail[]
+}
+
+type Authorization = {
+    apiKey: ErsteAPIKey
+}
+
+type CsasTransparentAccountV3_Accounts = {
+    page?: number,
+    size?: number,
+    filter?: string
+} & Authorization
+
+type CsasTransparentAccountV3_Account = {
+    apiKey: ErsteAPIKey,
+    accountId: ErsteAccount
+} & Authorization
+
+type CsasTransparentAccountV3_Transactions = {
+    apiKey: ErsteAPIKey,
+    accountId: ErsteAccount
+    page?: number,
+    size?: number,
+    sort?: 'processingDate' | 'amount' | 'sender',
+    order?: 'asc' | 'desc',
+    dateFrom?: string,
+    dateTo?: string,
+    filter?: string
+} & Authorization
+
+type CsasTransparentAccountV3_HealthCheck = Authorization
 
 export type CsasTransparentAccountV3 = {
-    getTransactions: ({ apiKey: string, account }: {
-        apiKey: ErsteAPIKey,
-        account: ErsteAccount
-    }) => Promise<ErsteResponse>
-    moneySum: ({ filter, apiKey, account }: {
-        filter?: {
-            variableSymbol?: VariableSymbol
-        }
-        apiKey: ErsteAPIKey
-        account: ErsteAccount
-    }) => Promise<TransparentAccountSum>
+    accounts: (params: CsasTransparentAccountV3_Accounts) => Promise<AccountsList>
+    account: (params: CsasTransparentAccountV3_Account) => Promise<AccountDetail>
+    transactions: (params: CsasTransparentAccountV3_Transactions) => Promise<ListOfTransactions>
+    healthCheck: (params: CsasTransparentAccountV3_HealthCheck) => Promise<number>
 }

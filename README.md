@@ -1,3 +1,7 @@
-# erste-client-node
+# Node.js library for ERSTE API
 
-Client for ERSTE API in Node.js
+https://developers.erstegroup.com/docs/apis/bank.csas
+
+## Supported endpoints
+- Česká spořitelna a.s., Czech Republic
+  - Transparent accounts API v3

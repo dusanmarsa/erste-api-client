@@ -3,13 +3,16 @@ import queryString from 'query-string';
 
 import { CsasTransparentAccountV3 } from '../types/csasTransparentAccountV3';
 
-const apiURL = 'https://www.csas.cz/webapi/api/v3/transparentAccounts';
+const productionURL = 'https://www.csas.cz/webapi/api/v3/transparentAccounts'
+const sandboxURL = 'https://private-anon-089a392ab3-eahtransparentaccountsv3prod.apiary-mock.com/webapi/api/v3/transparentAccounts';
+
+const apiURL = isProd => isProd ? productionURL : sandboxURL
 
 export const csasTransparentAccountV3: CsasTransparentAccountV3 = {
   accounts: async ({ apiKey, page, size, filter }) => {
     const builtUrl = queryString.stringifyUrl(
       {
-        url: apiURL,
+        url: apiURL(true),
         query: {
           page,
           size,
@@ -19,30 +22,40 @@ export const csasTransparentAccountV3: CsasTransparentAccountV3 = {
       { skipNull: true }
     );
 
-    const response = await (
-      await fetch(builtUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'WEB-API-key': apiKey,
-        },
-      })
-    ).json();
+    const response = await fetch(builtUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'WEB-API-key': apiKey,
+      },
+    })
 
-    return response;
+    const jsonResponse = await response.json()
+
+    if(jsonResponse.status !== 200 || jsonResponse.status !== 200) return jsonResponse
+
+    return {
+      status: response.status,
+      ...jsonResponse
+    };
   },
   account: async ({ apiKey, accountId }) => {
-    const response = await (
-      await fetch(`${apiURL}/${accountId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'WEB-API-key': apiKey,
-        },
-      })
-    ).json();
+    const response = await fetch(`${apiURL(true)}/${accountId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'WEB-API-key': apiKey,
+      },
+    })
 
-    return response;
+    const jsonResponse = await response.json()
+
+    if(jsonResponse.status !== 200 || jsonResponse.status !== 200) return jsonResponse
+
+    return {
+      status: response.status,
+      ...jsonResponse
+    };
   },
   transactions: async ({
     accountId,
@@ -57,7 +70,7 @@ export const csasTransparentAccountV3: CsasTransparentAccountV3 = {
   }) => {
     const builtUrl = queryString.stringifyUrl(
       {
-        url: `${apiURL}/${accountId}/transactions`,
+        url: `${apiURL(true)}/${accountId}/transactions`,
         query: {
           page,
           size,
@@ -71,29 +84,32 @@ export const csasTransparentAccountV3: CsasTransparentAccountV3 = {
       { skipNull: true }
     );
 
-    const response = await (
-      await fetch(builtUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'WEB-API-key': apiKey,
-        },
-      })
-    ).json();
+    const response = await fetch(builtUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'WEB-API-key': apiKey,
+      },
+    })
 
-    return response;
+    const jsonResponse = await response.json()
+
+    if(jsonResponse.status !== 200 || jsonResponse.status !== 200) return jsonResponse
+
+    return {
+      status: response.status,
+      ...jsonResponse
+    };
   },
   healthCheck: async ({ apiKey }) => {
-    const response = await (
-      await fetch(`${apiURL}/health`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'WEB-API-key': apiKey,
-        },
-      })
-    ).json();
+    const response = await fetch(`${apiURL(true)}/health`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'WEB-API-key': apiKey,
+      },
+    })
 
-    return response;
+    return response.status;
   },
 };

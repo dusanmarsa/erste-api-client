@@ -1,4 +1,4 @@
-import { ErsteAccount, ErsteAPIKey, VariableSymbol } from './global';
+import { ErsteAccount, ErsteAPIKey, VariableSymbol, RequestError } from './global';
 
 export type ErsteTransaction = {
   readonly amount: {
@@ -28,14 +28,6 @@ export type ErsteTransaction = {
   readonly typeDescription: string;
 };
 
-export type ListOfTransactions = {
-  readonly pageNumber: number;
-  readonly pageSize: number;
-  readonly pageCount: number;
-  readonly recordCount: number;
-  readonly transactions: readonly ErsteTransaction[];
-};
-
 export type AccountDetail = {
   readonly accountNumber: string;
   readonly bankCode: string;
@@ -51,32 +43,28 @@ export type AccountDetail = {
   readonly iban: string;
 };
 
-export type AccountsList = {
-  readonly pageNumber: number;
-  readonly pageCount: number;
-  readonly pageSize: number;
-  readonly recordCount: number;
-  readonly nextPage: number;
-  readonly accounts: readonly AccountDetail[];
-};
-
 type Authorization = {
+  readonly sandbox: false
   readonly apiKey: ErsteAPIKey;
+} | {
+  readonly sandbox: true
+  readonly apiKey?: ErsteAPIKey;
 };
 
-type CsasTransparentAccountV3_Accounts = {
+/** 
+ * INPUTS
+*/
+type CsasTransparentAccountV3_Accounts_Input = {
   readonly page?: number;
   readonly size?: number;
   readonly filter?: string;
 } & Authorization;
 
-type CsasTransparentAccountV3_Account = {
-  readonly apiKey: ErsteAPIKey;
+type CsasTransparentAccountV3_Account_Input = {
   readonly accountId: ErsteAccount;
 } & Authorization;
 
-type CsasTransparentAccountV3_Transactions = {
-  readonly apiKey: ErsteAPIKey;
+type CsasTransparentAccountV3_Transactions_Input = {
   readonly accountId: ErsteAccount;
   readonly page?: number;
   readonly size?: number;
@@ -87,17 +75,40 @@ type CsasTransparentAccountV3_Transactions = {
   readonly filter?: string;
 } & Authorization;
 
-type CsasTransparentAccountV3_HealthCheck = Authorization;
+/** 
+ * RESPONSES
+*/
+type CsasTransparentAccountV3_HealthCheck_Input = Authorization;
+
+type CsasTransparentAccountV3_Accounts_Response = Promise<RequestError | {
+  readonly status: "200";
+  readonly pageNumber: number;
+  readonly pageCount: number;
+  readonly pageSize: number;
+  readonly recordCount: number;
+  readonly nextPage: number;
+  readonly accounts: readonly AccountDetail[];
+}>
+
+type CsasTransparentAccountV3_Account_Response = Promise<RequestError | (AccountDetail & {
+  readonly status: "200";
+})>
+
+type CsasTransparentAccountV3_Transactions_Response = Promise<RequestError | {
+  readonly status: "200";
+  readonly pageNumber: number;
+  readonly pageSize: number;
+  readonly pageCount: number;
+  readonly recordCount: number;
+  readonly transactions: readonly ErsteTransaction[];
+}>
+
+type CsasTransparentAccountV3_HealthCheck_Response = Promise<number>
+
 
 export type CsasTransparentAccountV3 = {
-  readonly accounts: (
-    params: CsasTransparentAccountV3_Accounts
-  ) => Promise<AccountsList>;
-  readonly account: (params: CsasTransparentAccountV3_Account) => Promise<AccountDetail>;
-  readonly transactions: (
-    params: CsasTransparentAccountV3_Transactions
-  ) => Promise<ListOfTransactions>;
-  readonly healthCheck: (
-    params: CsasTransparentAccountV3_HealthCheck
-  ) => Promise<number>;
+  readonly accounts: (params: CsasTransparentAccountV3_Accounts_Input) => CsasTransparentAccountV3_Accounts_Response;
+  readonly account: (params: CsasTransparentAccountV3_Account_Input) => CsasTransparentAccountV3_Account_Response;
+  readonly transactions: (params: CsasTransparentAccountV3_Transactions_Input) => CsasTransparentAccountV3_Transactions_Response;
+  readonly healthCheck: (params: CsasTransparentAccountV3_HealthCheck_Input) => CsasTransparentAccountV3_HealthCheck_Response;
 };
